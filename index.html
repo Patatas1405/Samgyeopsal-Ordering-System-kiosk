@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Samgyeopsal Kiosk – Enhanced</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="welcome-screen" id="welcomeScreen" role="dialog" aria-labelledby="welcomeTitle" aria-describedby="welcomeDesc">
+    <div class="welcome-card" role="document">
+        <div class="welcome-emoji">🥓</div>
+        <div id="welcomeTitle" class="welcome-title">Welcome to Samgyeopsal Station</div>
+        <div id="welcomeDesc" class="welcome-sub">Quick, friendly ordering – tap to start your delicious Korean BBQ experience.</div>
+        <div class="welcome-actions">
+            <button id="startBtn" class="start-btn" aria-label="Start Order" autofocus>Tap to Start Order</button>
+        </div>
+    </div>
+</div>
+
+<div class="app" aria-hidden="false">
+    <div class="kiosk" id="kioskContainer" aria-live="polite">
+        <main class="menu-panel" id="menuPanel" role="main" aria-label="Menu">
+            <div class="kiosk-header" role="region" aria-label="Kiosk header">
+                <div class="brand">
+                    <div class="brand-emoji">🥓</div>
+                    <div>
+                        <div class="brand-title">Samgyeopsal Station</div>
+                        <div class="brand-sub">Order your favorite Korean BBQ</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="viewHistoryBtn" class="history-btn" aria-haspopup="dialog" title="View order history">🕐 History</button>
+                </div>
+            </div>
+
+            <div id="categoryTabs" class="category-tabs" role="tablist" aria-label="Categories">
+                <button class="category-tab active" data-category="all" role="tab" aria-selected="true" tabindex="0">🍽️ All Menu</button>
+                <button class="category-tab" data-category="unli-set" role="tab" tabindex="0">🔥 UNLI SETS</button>
+                <button class="category-tab" data-category="fixed-set" role="tab" tabindex="0">🍚 FIXED MEALS</button>
+                <button class="category-tab" data-category="side" role="tab" tabindex="0">🥢 SIDE DISHES</button>
+                <button class="category-tab" data-category="soup-noodle" role="tab" tabindex="0">🍜 SOUP & NOODLES</button>
+                <button class="category-tab" data-category="drink" role="tab" tabindex="0">🥤 DRINKS</button>
+                <button class="category-tab" data-category="dessert" role="tab" tabindex="0">🍦 DESSERTS</button>
+                <button class="category-tab" data-category="addons" role="tab" tabindex="0">➕ ADD-ONS</button>
+            </div>
+
+            <section id="menuGrid" class="menu-grid" aria-live="polite" aria-label="Menu items">
+            </section>
+        </main>
+
+        <aside class="cart-panel" role="complementary" aria-label="Cart">
+            <div class="cart-header">
+                <div class="cart-header-left">
+                    <div class="cart-title">🛒 Your Order</div>
+                    <div id="cartCount" class="cart-count">0 items</div>
+                </div>
+                <div class="cart-actions">
+                    <button id="clearCartBtn" class="clear-cart-btn" title="Clear cart">Clear</button>
+                </div>
+            </div>
+
+            <div id="cartItems" class="cart-items" aria-live="polite" aria-label="Cart items">
+                <div class="empty-cart" role="status">
+                    <div class="empty-cart-icon">👈</div>
+                    <p><strong>Start by selecting an item</strong><br>Tap any menu on the left to add to your order.</p>
+                </div>
+            </div>
+
+            <div class="cart-summary" aria-label="Order summary">
+                <div class="summary-row"><span>Subtotal</span><span id="subtotal">₱0</span></div>
+                <div class="summary-row total"><span>TOTAL</span><span id="total">₱0</span></div>
+                <button id="checkoutBtn" class="checkout-btn" disabled aria-disabled="true">💵 Proceed to Checkout</button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- ITEM MODAL -->
+<div id="itemModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal" role="document">
+        <div class="modal-header">
+            <img id="modalImage" class="modal-image" src="" alt="" aria-hidden="false">
+            <div id="modalTitle" class="modal-title">Item</div>
+            <div id="modalDescription" class="modal-description">Description</div>
+        </div>
+
+        <div class="modal-section" aria-labelledby="modsTitle">
+            <div id="modsTitle" class="modal-section-title" style="font-weight:800; font-size:14px;">Add-ons & Modifications</div>
+            <div id="modalModifications" class="modification-options" role="list">
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="specialRequest" style="display: block; font-weight: 700; margin-bottom: 5px; font-size:13px;">Special Request:</label>
+                <!-- Added maxlength attribute here -->
+                <textarea id="specialRequest" maxlength="100" placeholder="e.g., Please make it extra spicy. (Max 100 chars)"></textarea>
+            </div>
+        </div>
+
+        <div class="modal-total" aria-hidden="false">
+            <div class="modal-qty-wrap">
+                <button id="modalQtyMinus" class="modal-qty-btn" aria-label="Decrease quantity">−</button>
+                <div id="modalQty" class="modal-qty-display">1</div>
+                <button id="modalQtyPlus" class="modal-qty-btn" aria-label="Increase quantity">+</button>
+            </div>
+            <div class="modal-price" id="modalPrice">₱0</div>
+        </div>
+
+        <div class="modal-actions">
+            <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">✕ Cancel</button>
+            <button id="modalAddBtn" class="modal-btn modal-btn-add">✓ Add to Order</button>
+        </div>
+    </div>
+</div>
+
+<div id="orderHistoryModal" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" role="document" aria-labelledby="historyTitle">
+        <div class="modal-header">
+            <div id="historyTitle" class="modal-title">Order History</div>
+            <div class="modal-description">Review your recent transactions</div>
+            <div class="history-total-summary">
+                <div>Total Orders: <span id="totalOrdersCount">0</span></div>
+                <div>Total Spent: <span id="totalHistoryAmount">₱0</span></div>
+            </div>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+
+        <div class="modal-actions">
+            <button id="clearHistoryBtn" class="modal-btn modal-btn-cancel" title="Clear order history">Clear All</button>
+            <button class="modal-btn modal-btn-cancel" id="closeHistoryBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="orderDetailModal" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal" role="document">
+        <div class="modal-header">
+            <div class="modal-title">Order Details <span id="detailOrderNumber"></span></div>
+            <div class="modal-description">Date: <span id="detailOrderDate"></span></div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Items</div>
+            <div id="detailItemsList" class="detail-items-list"></div>
+        </div>
+
+        <div class="modal-total">
+            <div class="modal-section-title">Grand Total</div>
+            <div class="modal-price" id="detailOrderTotal">₱0</div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" id="backToHistoryBtn">← Back</button>
+            <button class="modal-btn modal-btn-add" id="closeDetailBtn">Done</button>
+        </div>
+    </div>
+</div>
+
+<div id="checkoutConfirmModal" class="modal-backdrop" role="dialog" aria-hidden="true" aria-labelledby="confirmTitle">
+    <div class="modal" role="document" aria-labelledby="confirmTitle">
+        <div class="modal-header">
+            <div id="confirmTitle" class="modal-title">Confirm Order</div>
+            <div class="modal-description">Please review your items before placing the order.</div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Items</div>
+            <div id="confirmItemsList" class="confirm-items"></div>
+        </div>
+
+        <div class="confirm-total-section">
+            <div class="confirm-row">
+                <div class="modal-section-title">Subtotal</div>
+                <div id="confirmSubtotal" class="modal-price">₱0</div>
+            </div>
+            <div class="confirm-row">
+                <div class="modal-section-title total-label">TOTAL</div>
+                <div id="confirmTotal" class="modal-price">₱0</div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button id="confirmCancelBtn" class="modal-btn modal-btn-cancel">✕ Cancel</button>
+            <button id="confirmProceedBtn" class="modal-btn modal-btn-add">✓ Place Order</button>
+        </div>
+    </div>
+</div>
+
+<div id="successModal" class="modal-backdrop" role="dialog" aria-hidden="true">
+    <div class="modal success" role="document" style="text-align:center">
+        <div class="success-emoji">✅</div>
+        <div class="modal-title">Order Placed!</div>
+        <div class="modal-description" id="successMessage">Thank you – your order is being prepared.</div>
+        <div class="modal-actions success-actions">
+            <button id="newOrderBtn" class="modal-btn modal-btn-add">Start New Order</button>
+        </div>
+    </div>
+</div>
+<script src="script.js" defer></script>
+</body>
+</html>
